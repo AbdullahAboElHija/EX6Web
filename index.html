@@ -29,13 +29,43 @@
         });
         return table;
       };
+
+      const paginateData = (data, page, pageSize) => {
+        const startIndex = (page - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        return data.slice(startIndex, endIndex);
+      };
+
+      const renderTable = (data, page, pageSize) => {
+        const paginatedData = paginateData(data, page, pageSize);
+        const table = createTable(paginatedData);
+        $("#myTable").empty().append(table);
+      };
+
       $(document).ready(function () {
         fetch("https://dummyjson.com/products")
           .then((response) => response.json())
           .then((data) => {
             console.log(data);
-            const tb = createTable(data.products);
-            $("#myTable").append(tb);
+            const pageSize = 10;
+            let currentPage = 1;
+            const totalPages = Math.ceil(data.products.length / pageSize);
+
+            renderTable(data.products, currentPage, pageSize);
+
+            $("#previousBtn").click(function () {
+              if (currentPage > 1) {
+                currentPage--;
+                renderTable(data.products, currentPage, pageSize);
+              }
+            });
+
+            $("#nextBtn").click(function () {
+              if (currentPage < totalPages) {
+                currentPage++;
+                renderTable(data.products, currentPage, pageSize);
+              }
+            });
           });
       });
     </script>
@@ -43,6 +73,10 @@
   <body>
     <div class="w-[1000px] mx-auto border border-gray-300 p-4 m-4">
       <div id="myTable" class="bg-gray-200"></div>
+      <div class="flex justify-center mt-4">
+        <button id="previousBtn" class="px-4 py-2 bg-blue-500 text-white mr-2">Previous</button>
+        <button id="nextBtn" class="px-4 py-2 bg-blue-500 text-white">Next</button>
+      </div>
     </div>
 
     <script>
